@@ -72,6 +72,13 @@ public class HomeFragment extends Fragment {
         homeViewModel.refresh();
         dogsList.setLayoutManager(new LinearLayoutManager(getContext()));
         dogsList.setAdapter(dogsAdapter);
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            dogsList.setVisibility(View.GONE);
+            error.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
+            homeViewModel.forcedRefresh();
+            swipeRefreshLayout.setRefreshing(false);
+        });
         observeViewModel();
     }
 

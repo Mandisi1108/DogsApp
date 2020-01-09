@@ -1,6 +1,8 @@
 package com.mara.dogsapp.viewmodel;
 
 import android.app.Application;
+import android.os.AsyncTask;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -8,6 +10,9 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.mara.dogsapp.model.DogApiService;
 import com.mara.dogsapp.model.DogBreed;
+import com.mara.dogsapp.model.DogDao;
+import com.mara.dogsapp.model.DogDatabase;
+import com.mara.dogsapp.util.SharedPreferencesHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,13 +28,35 @@ public class HomeViewModel extends AndroidViewModel {
     public MutableLiveData<Boolean> loading = new MutableLiveData<>();
     private DogApiService dogApiService = new DogApiService();
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private AsyncTask<List<DogBreed>, Void, List<DogBreed>> insertTask;
+    private AsyncTask<Void, Void, List<DogBreed>> retrieveTask;
+    private SharedPreferencesHelper preferencesHelper = SharedPreferencesHelper
+            .getInstance(getApplication());
+    private long refreshTime = 5 * 60 * 1000 * 1000* 1000L;
 
     public HomeViewModel(@NonNull Application application) {
         super(application);
     }
 
     public void refresh() {
+        long updateTime = preferencesHelper.getUpdateTime();
+        long currentTime = System.nanoTime();
+
+        if (updateTime != 0 && currentTime - updateTime < refreshTime ) {
+            fetchFromDatabase();
+        } else {
+            fetchFromRemote();
+        }
+    }
+
+    public void forcedRefresh() {
         fetchFromRemote();
+    }
+
+    private void fetchFromDatabase() {
+        loading.setValue(true);
+        retrieveTask = new RetrieveDogsTask();
+        retrieveTask.execute();
     }
 
     private void fetchFromRemote() {
@@ -41,9 +68,10 @@ public class HomeViewModel extends AndroidViewModel {
                         .subscribeWith(new DisposableSingleObserver<List<DogBreed>>() {
                             @Override
                             public void onSuccess(List<DogBreed> dogBreeds) {
-                                dogs.setValue(dogBreeds);
-                                loadError.setValue(false);
-                                loading.setValue(false);
+                                insertTask = new InsertDogsTask();
+                                insertTask.execute(dogBreeds);
+                                Toast.makeText(getApplication(), "Retrieved from endpoint",
+                                        Toast.LENGTH_SHORT).show();
                             }
 
                             @Override
@@ -56,9 +84,64 @@ public class HomeViewModel extends AndroidViewModel {
         );
     }
 
+    private void dogsRetrieved(List<DogBreed> dogList) {
+        dogs.setValue(dogList);
+        loadError.setValue(false);
+        loading.setValue(false);
+    }
+
     @Override
     protected void onCleared() {
         super.onCleared();
         compositeDisposable.clear();
+
+        if (insertTask != null) {
+            insertTask.cancel(true);
+            insertTask = null;
+        }
+
+        if (retrieveTask != null) {
+            retrieveTask.cancel(true);
+            retrieveTask = null;
+        }
+    }
+
+    private class InsertDogsTask extends AsyncTask<List<DogBreed>, Void, List<DogBreed>> {
+
+        @Override
+        protected List<DogBreed> doInBackground(List<DogBreed>... lists) {
+            List<DogBreed> list = lists[0];
+            DogDao dao = DogDatabase.getInstance(getApplication()).dogDao();
+            dao.deleteAllDogs();
+            ArrayList<DogBreed> newList = new ArrayList<>(list);
+            List<Long> result = dao.insertAll(newList.toArray(new DogBreed[0]));
+            int i = 0;
+            while (i < list.size()) {
+                list.get(i).uui = result.get(i).intValue();
+                ++i;
+            }
+            return list;
+        }
+
+        @Override
+        protected void onPostExecute(List<DogBreed> dogBreeds) {
+            dogsRetrieved(dogBreeds);
+            preferencesHelper.saveUpdateTime(System.nanoTime());
+        }
+    }
+
+    private class RetrieveDogsTask extends AsyncTask<Void, Void, List<DogBreed>> {
+
+        @Override
+        protected List<DogBreed> doInBackground(Void... voids) {
+            return DogDatabase.getInstance(getApplication()).dogDao().getAllDogs();
+        }
+
+        @Override
+        protected void onPostExecute(List<DogBreed> dogBreeds) {
+            dogsRetrieved(dogBreeds);
+            Toast.makeText(getApplication(), "Retrieved from database",
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 }

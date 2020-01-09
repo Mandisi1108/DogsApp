@@ -11,8 +11,8 @@
         android:label="fragment_home"
         tools:layout="@layout/fragment_home" >
         <action
-            android:id="@+id/action_homeFragment_to_infoFragment"
-            app:destination="@id/infoFragment" />
+            android:id="@+id/actionInfo"
+            app:destination="@+id/infoFragment" />
     </fragment>
     <fragment
         android:id="@+id/infoFragment"
@@ -20,7 +20,11 @@
         android:label="fragment_info"
         tools:layout="@layout/fragment_info" >
         <action
-            android:id="@+id/action_infoFragment_to_homeFragment"
+            android:id="@+id/actionHome"
             app:destination="@id/homeFragment" />
+        <argument
+            android:name="dogUuid"
+            app:argType="integer"
+            android:defaultValue="0" />
     </fragment>
 </navigation>

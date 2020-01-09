@@ -3,6 +3,7 @@ package com.mara.dogsapp.util;
 import android.content.Context;
 import android.widget.ImageView;
 
+import androidx.databinding.BindingAdapter;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
 import com.bumptech.glide.Glide;
@@ -28,5 +29,10 @@ public class Util {
         progressDrawable.setCenterRadius(50f);
         progressDrawable.start();
         return progressDrawable;
+    }
+
+    @BindingAdapter("android:imageUrl")
+    public static void loadImage(ImageView imageView, String url) {
+        loadImage(imageView, url, getProgressDrawable(imageView.getContext()));
     }
 }

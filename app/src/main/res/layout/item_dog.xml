@@ -1,39 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="125dp"
-    android:orientation="horizontal">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable
+            name="dog"
+            type="com.mara.dogsapp.model.DogBreed" />
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="2"
-        android:padding="4dp" />
-
+        <variable
+            name="clickListener"
+            type="com.mara.dogsapp.view.DogClickListener" />
+    </data>
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="3"
-        android:gravity="center_vertical"
-        android:orientation="vertical"
-        android:padding="4dp" >
+        android:id="@+id/dogLayout"
+        android:layout_width="match_parent"
+        android:layout_height="125dp"
+        android:orientation="horizontal"
+        android:onClick="@{clickListener::onDogClicked}">
 
         <TextView
-            android:id="@+id/dogNameTextView"
+            android:id="@+id/dogId"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Dog name"
-            style="@style/Title"/>
+            android:visibility="gone"
+            android:text="@{String.valueOf(dog.uui)}"/>
 
-        <TextView
-            android:id="@+id/lifespanTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Dog lifespan"
-            style="@style/Text"/>
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:padding="4dp"
+            android:imageUrl="@{dog.imageUrl}"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:padding="4dp" >
+
+            <TextView
+                android:id="@+id/dogNameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{dog.dogBreed}"
+                style="@style/Title"/>
+
+            <TextView
+                android:id="@+id/lifespanTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{dog.lifeSpan}"
+                style="@style/Text"/>
+
+        </LinearLayout>
 
     </LinearLayout>
+</layout>
 
-</LinearLayout>
+

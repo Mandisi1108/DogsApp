@@ -8,5 +8,6 @@ import retrofit2.http.GET;
 public interface DogsApiInterface {
     @GET("DevTides/DogsApi/master/dogs.json")
     Single<List<DogBreed>> getDogs();
+
 }
 
