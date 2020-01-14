@@ -4,6 +4,10 @@
         <variable
             name="dogs"
             type="com.mara.dogsapp.model.DogBreed" />
+        
+        <variable
+            name="palette"
+            type="com.mara.dogsapp.model.DogPalette" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -11,7 +15,8 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".view.InfoFragment">
+        tools:context=".view.InfoFragment"
+        android:background="@{palette.color}">
 
         <ImageView
             android:id="@+id/imageView2"

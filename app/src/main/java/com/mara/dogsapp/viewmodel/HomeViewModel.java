@@ -12,6 +12,7 @@ import com.mara.dogsapp.model.DogApiService;
 import com.mara.dogsapp.model.DogBreed;
 import com.mara.dogsapp.model.DogDao;
 import com.mara.dogsapp.model.DogDatabase;
+import com.mara.dogsapp.util.NotificationsHelper;
 import com.mara.dogsapp.util.SharedPreferencesHelper;
 
 import java.util.ArrayList;
@@ -72,6 +73,8 @@ public class HomeViewModel extends AndroidViewModel {
                                 insertTask.execute(dogBreeds);
                                 Toast.makeText(getApplication(), "Retrieved from endpoint",
                                         Toast.LENGTH_SHORT).show();
+                                NotificationsHelper.getInstance(getApplication())
+                                        .createNotification();
                             }
 
                             @Override
